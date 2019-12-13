@@ -339,6 +339,8 @@ func AddProvider(tag string, provider TaggedFunction) error {
 	return nil
 }
 
+var nextUnique = 3000
+
 func getValue(a interface{}) (reflect.Value, error) {
 	t := reflect.TypeOf(a)
 	if t == nil {
@@ -372,7 +374,7 @@ func getValue(a interface{}) (reflect.Value, error) {
 		default:
 			originalDataVal := reflect.ValueOf(a)
 			v := reflect.New(t).Elem()
-			retry := 0 // error if cannot generate unique value after maxRetry tries
+			//retry := 0 // error if cannot generate unique value after maxRetry tries
 			for i := 0; i < v.NumField(); i++ {
 				if !v.Field(i).CanSet() {
 					continue // to avoid panic to set on unexported field in struct
@@ -412,7 +414,10 @@ func getValue(a interface{}) (reflect.Value, error) {
 				}
 
 				if tags.unique {
-
+					ss := fmt.Sprintf("%d", nextUnique)
+					nextUnique++
+					v.Field(i).Set(reflect.ValueOf(ss))
+					/*
 					if retry >= maxRetry {
 						return reflect.Value{}, fmt.Errorf(ErrUniqueFailure, reflect.TypeOf(a).Field(i).Name)
 					}
@@ -425,8 +430,9 @@ func getValue(a interface{}) (reflect.Value, error) {
 					}
 					retry = 0
 					uniqueValues[tags.fieldType] = append(uniqueValues[tags.fieldType], value)
-				} else {
-					retry = 0
+					*/
+				//} else {
+					//retry = 0
 				}
 
 			}
